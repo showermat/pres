@@ -115,7 +115,7 @@ function keydown(e) {
 	}
 }
 $(document).ready(function() {
-	svg = $("svg");
+	svg = $("svg#slides");
 	for (var i = 0; i < init.length; i++) apply(init[i], true);
 	$(document).keydown(keydown);
 });

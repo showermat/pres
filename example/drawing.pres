@@ -1,0 +1,34 @@
+title My Presentation
+source layered.svg
+size 1200 800
+
+#path831 r 0
+
+view 0 0 150 100 ; test
+#text821 opacity 0
+
+view 0 50 70 40
+#path827 fill #000
+#rect833 height 40, x 26, width 60
+#path829 cx 70, cy 120
+note
+	This is the secret sauce.
+	I am awesome.
+
+
+;comment
+#path825 r 2, cx 30, cy 110 (ease 200 15)
+
+
+#path825 (ease 200 15)
+	cx 70
+	cy 140
+
+#path831 r 10 (ease 200 15)
+
+
+duration 1000
+#path831 r 4, cx 40
+#path829 cx 40
+#path825 cy 120 (ease 200 15, duration 400)
+

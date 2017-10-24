@@ -4,6 +4,7 @@ import collections
 keywords = {
 	"title": "raw",
 	"source": "raw",
+	"size": "space",
 	"note": "raw",
 	"init": "recurse",
 	"view": "space",
@@ -80,7 +81,7 @@ def args(lines): # Splits args and takes care of indented regions. Return (keywo
 	else: indented = [ line[2] for line in indented ]
 	return (first[1], lineargs + indented, parenargs)
 
-def mktrans(line):
+def mktrans(line, defaults = {}):
 	def attrparse(attr):
 		ret = []
 		for x in attr[1:]:
@@ -88,11 +89,12 @@ def mktrans(line):
 			elif re.match("^-?\\d+(.\\d+)?$", x): ret.append(float(x))
 			else: ret.append(x)
 		return ret
-	if line[0] is None or line[0] == "": raise RuntimeError("Unexpected empty command")
-	if line[0] in [":", "note"]: return None
-	elif line[0] == "view":
-		if len(line[1]) != 4: raise RuntimeError("Four arguments are required for view")
-		ret = {"type": "view", "box": [ int(i) for i in line[1] ]}
+	if line[0] == "view":
+		if len(line[1]) == 1:
+			pass # TODO
+		elif len(line[1]) == 4:
+			ret = {"type": "view", "box": [ int(i) for i in line[1] ]}
+		else: raise RuntimeError("Wrong number of arguments for view")
 	elif line[0][0] in ["#", "."]:
 		parts = [ parse(a, "\\s+") for a in line[1] ]
 		attr = {}
@@ -101,12 +103,12 @@ def mktrans(line):
 			if len(p) != 2: raise RuntimeError("Each property for an element must have exactly one value")
 			attr[p[0]] = attrparse(p)[0]
 		ret = {"type": "elem", "select": line[0], "attr": attr}
-	else: raise RuntimeError("Unknown slide command \"%s\"" % (line[0]))
 	parts = [ parse(a, "\\s+") for a in line[2] ]
-	paren = {}
+	paren = defaults.copy()
 	for p in parts:
 		if p is None or len(p) == 0: continue
 		paren[p[0]] = attrparse(p)
+		if len(paren[p[0]]) == 1: paren[p[0]] = paren[p[0]][0]
 	return {**ret, **paren}
 
 def blocks(lines):
@@ -128,10 +130,19 @@ def blocks(lines):
 def getconf(infile):
 	conf = blocks(collections.deque([ preproc(line) for line in infile.readlines() ]))
 	if len(conf) < 2: raise RuntimeError("Properties and init blocks are required")
-	props = { prop[0]: prop[1][0] for prop in conf[0] }
+	props = { prop[0]: prop[1] for prop in conf[0] }
 	slides = []
 	for slide in conf[1:]:
-		print(slide)
-		slides.append([ x for x in filter(lambda x: x is not None, [ mktrans(line) for line in slide ]) ])
+		cur = []
+		defaults = {}
+		for trans in slide:
+			if trans[0] is None or trans[0] is "": continue
+			elif trans[0] in [":", "note"]: continue
+			elif trans[0] in ["view"] or trans[0][0] in ["#", "."]:
+				js = mktrans(trans, defaults)
+				if js is not None: cur.append(js)
+			elif trans[0] in ["duration"]: defaults[trans[0]] = int(trans[1][0])
+			else: raise RuntimeError("Unknown slide command \"%s\"" % (trans[0]))
+		slides.append(cur)
 	return (props, slides)
 
