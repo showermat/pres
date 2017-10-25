@@ -13,12 +13,16 @@ import io
 import subprocess
 
 import conffmt
+import transition
 
 # Features:
 # Speaker notes somehow?
 # Page number, date, and other dynamic content in overlay
 # Support mouse drag and zoom
 # Use hashes in URL to specify current slide
+# Hide overlay on (e.g. title) slide
+# Embed linked media when creating HTML
+# Fix layers that have transforms applied to them (causes rect-based viewboxes to be off)
 
 rsrcdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "rsrc")
 
@@ -41,15 +45,20 @@ def splitlayers(svg):
 
 def svg2pdf(svg):
 	cmd = ["inkscape", "/dev/stdin", "-z", "--export-area-page", "--export-pdf", "/dev/stdout"]
-	return subprocess.run(cmd, input=svg.encode("UTF-8"), check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout
+	try: return subprocess.run(cmd, input=svg.encode("UTF-8"), check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout
+	except subprocess.CalledProcessError as e:
+		print(e.stderr.decode("UTF-8"))
+		raise
 
 def html(svg, title, init, slides, out):
 	with open(os.path.join(rsrcdir, "templ.html")) as infile: templ = jinja2.Template(infile.read())
 	scripts = ["jquery-3.2.1.min.js", "velocity.min.js", "data", "pres.js"]
 	js = ""
+	tree = lxml.etree.fromstring(svg.encode("UTF-8"))
 	for script in scripts:
 		if script == "data":
-			lines = ["var init = " + json.dumps(init) + ";", "var stops = " + json.dumps(slides) + ";"]
+			lines = ["var init = " + json.dumps([ trans.encode(tree) for trans in init ]) + ";",
+				"var stops = " + json.dumps([ [ trans.encode(tree) for trans in slide ] for slide in slides ]) + ";"]
 			content = "\n".join(lines);
 		elif re.search("^http(s)?://", script): content = requests.get(script).text
 		else:
@@ -58,32 +67,13 @@ def html(svg, title, init, slides, out):
 	with open(out, "w") as outfile: outfile.write(templ.render(title=title, js=js, slides=svg))
 
 def pdf(doc, title, slides, size, out):
-	noncss = ["width", "height", "x", "y", "cx", "cy", "r", "rx", "ry", "x1", "x2", "y1", "y2"];
-	def updstyle(elem, k, v):
-		style = [ re.split(":\\s*", item) for item in re.split(";\\s*", elem.get("style")) ]
-		style = { item[0]: item[1] for item in style }
-		style[k] = v
-		style = ";".join([ "%s:%s" % (k, v) for (k, v) in style.items() ])
-		elem.set("style", style)
 	num = 1
 	pages = []
-	svg = lxml.etree.fromstring(doc.encode("UTF-8"))
-	layer = [ group for group in svg.findall("{*}svg") if group.get("id") == "slides" ]
-	if len(layer) != 1: layer = svg
-	else: layer = layer[0]
+	tree = lxml.etree.fromstring(doc.encode("UTF-8"))
 	for slide in slides:
 		print("\r%d/%d" % (num, len(slides)), end="")
-		for trans in slide:
-			if trans["type"] == "view":
-				layer.set("viewBox", " ".join([ str(x) for x in trans["box"] ]))
-			elif trans["type"] == "elem":
-				elems = layer.cssselect(trans["select"])
-				for elem in elems:
-					for (k, v) in trans["attr"].items():
-						if k in noncss: elem.set(k, str(v))
-						else: updstyle(elem, k, str(v))
-			else: pass
-		pages.append(svg2pdf(lxml.etree.tostring(svg).decode("UTF-8")))
+		for trans in slide: trans.apply(tree)
+		pages.append(svg2pdf(lxml.etree.tostring(tree).decode("UTF-8")))
 		num += 1
 	print()
 	writer = PyPDF2.PdfFileMerger()

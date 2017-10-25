@@ -84,10 +84,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.979899"
-     inkscape:cx="228.52015"
-     inkscape:cy="-15.829391"
+     inkscape:cx="303.77651"
+     inkscape:cy="19.39394"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer3"
+     inkscape:current-layer="layer4"
      showgrid="false"
      fit-margin-top="12"
      fit-margin-left="10"
@@ -95,7 +95,7 @@
      fit-margin-bottom="12"
      inkscape:window-width="1920"
      inkscape:window-height="1048"
-     inkscape:window-x="0"
+     inkscape:window-x="-2"
      inkscape:window-y="14"
      inkscape:window-maximized="0" />
   <metadata
@@ -106,7 +106,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -124,69 +124,80 @@
        y="-0.42039651" />
   </g>
   <g
-     inkscape:label="slides"
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="slides">
+    <rect
+       style="display:inline;opacity:1;fill:none;fill-opacity:0.43961355;stroke:#000000;stroke-width:0.26458332;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect839"
+       width="49.043957"
+       height="34.477768"
+       x="74.367752"
+       y="58.388199" />
+  </g>
+  <g
+     inkscape:label="content"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-21.854801,-58.662943)"
      style="display:inline">
     <rect
        style="opacity:1;fill:#ff00ff;fill-opacity:1;stroke:none;stroke-width:0.26458332;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect833"
        width="40.090431"
        height="12.561667"
-       x="41.961315"
-       y="108.30772" />
+       x="19.911579"
+       y="49.642056" />
     <circle
        style="opacity:1;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.26458332;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="path831"
-       cx="56.393867"
-       cy="133.6983"
+       cx="34.344131"
+       cy="75.032646"
        r="11.492589" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.953125px;line-height:125%;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="46.228409"
-       y="79.239853"
+       x="24.178673"
+       y="20.574192"
        id="text817"><tspan
          sodipodi:role="line"
          id="tspan815"
-         x="46.228409"
-         y="79.239853"
+         x="24.178673"
+         y="20.574192"
          style="font-size:11.28888893px;stroke-width:0.26458332px">Title</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.953125px;line-height:125%;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="36.348656"
-       y="86.525246"
+       x="14.29892"
+       y="27.859585"
        id="text821"><tspan
          sodipodi:role="line"
          id="tspan819"
-         x="36.348656"
-         y="86.525246"
+         x="14.29892"
+         y="27.859585"
          style="stroke-width:0.26458332px">Albert Einstein</tspan></text>
     <path
        style="fill:#ff0000;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 99.637807,147.11552 16.570723,-72.430041 26.19241,71.360971 -55.05753,-43.0304 64.41197,-3.741777 z"
+       d="M 77.588071,88.44986 94.158794,16.019819 120.35121,87.38079 65.293674,44.35039 129.70565,40.608613 Z"
        id="path823"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccccc" />
     <circle
        style="opacity:1;fill:#00ff00;fill-opacity:1;stroke:none;stroke-width:0.26458332;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="path827"
-       cx="68.020096"
-       cy="133.56468"
+       cx="45.97036"
+       cy="74.899025"
        r="11.091685" />
     <circle
        style="opacity:1;fill:#800000;fill-opacity:1;stroke:none;stroke-width:0.26458332;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="path829"
-       cx="75.904549"
-       cy="132.62923"
+       cx="53.854813"
+       cy="73.96357"
        r="4.8108511" />
     <circle
        style="opacity:1;fill:#ffff00;fill-opacity:1;stroke:none;stroke-width:0.26458332;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="path825"
-       cx="38.486809"
-       cy="122.473"
+       cx="16.437073"
+       cy="63.807343"
        r="8.8198938" />
   </g>
   <g
