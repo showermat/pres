@@ -68,6 +68,9 @@ def args(lines): # Splits args and takes care of indented regions. Return (keywo
 	elif first[1][0] in ["#", "."]: kwclass = keywords["select"]
 	else: raise RuntimeError("Unknown keyword \"%s\"" % (first[1]))
 	if kwclass == "raw": lineargs = [first[2]] if first[2] else []
+	elif first[2] is None:
+		lineargs = []
+		parenargs = []
 	else:
 		match = re.match("^()(\\((.*)\\))$", first[2]) # Case with only paren args
 		if not match: match = re.match("^(.*?)(\\s+\\((.*)\\))?$", first[2])

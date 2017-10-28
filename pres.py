@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 
 import sys
 import os.path
@@ -16,7 +16,9 @@ import conffmt
 import transition
 
 # Features:
+# Need to patch Velocty.js for fx and fy
 # Speaker notes somehow?
+# Look into ways to keep PDF size down
 # Page number, date, and other dynamic content in overlay
 # Support mouse drag and zoom
 # Use hashes in URL to specify current slide

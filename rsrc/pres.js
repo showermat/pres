@@ -1,3 +1,5 @@
+var noncss = ["width", "height", "x", "y", "cx", "cy", "fx", "fy", "r", "rx", "ry", "x1", "x2", "y1", "y2"];
+
 function rgb2hex(rgb) {
 	var m = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
 	function hex(x) { return ("0" + parseInt(x).toString(16)).slice(-2); }
@@ -6,7 +8,24 @@ function rgb2hex(rgb) {
 function copy(obj) {
 	return $.extend(true, {}, obj);
 }
-var noncss = ["width", "height", "x", "y", "cx", "cy", "r", "rx", "ry", "x1", "x2", "y1", "y2"];
+function apply_op(n, op, delta) {
+	if (op == "+") return n + delta;
+	if (op == "-") return n - delta;
+	if (op == "*") return n * delta;
+	if (op == "/") return n / delta;
+	console.log("Invalid operation " + op);
+}
+function xform_value(elem, k, v) {
+	var m = v.toString().match(/^(.)=(-?\d+(\.\d+)?)$/);
+	if (m) {
+		var cur;
+		if (noncss.indexOf(k) > -1) cur = elem.attr(k);
+		else cur = elem.css(k);
+		return apply_op(parseFloat(cur), m[1], parseFloat(m[2]));
+	}
+	// TODO Referencing other objects
+	return v;
+}
 
 var svg;
 var backstops = [];
@@ -22,7 +41,7 @@ function genBackstop(trans) {
 		$.each(trans["attr"], function(k, v) {
 			var attr = elem.attr(k) || elem.css(k);
 			if (attr.match("^rgb()")) attr = rgb2hex(attr);
-			if (!isNaN(attr)) attr = parseInt(attr);
+			if (!isNaN(attr)) attr = parseFloat(attr);
 			reset[k] = attr;
 		});
 		ret["attr"] = reset;
@@ -59,8 +78,9 @@ function apply(trans, skip) {
 				var attr = {};
 				var css = {};
 				$.each(trans["attr"], function(k, v) {
-					if (noncss.indexOf(k) > -1) attr[k] = v;
-					else css[k] = v;
+					var newval = xform_value(elem, k, v);
+					if (noncss.indexOf(k) > -1) attr[k] = newval;
+					else css[k] = newval;
 				});
 				elem.attr(attr);
 				elem.css(css);
@@ -69,6 +89,7 @@ function apply(trans, skip) {
 				resolve();
 			}
 			else $(trans["select"]).velocity(trans["attr"], { duration: duration, easing: easing, complete: resolve() });
+			// TODO Referencing other objects
 			break;
 		}
 	});

@@ -1,8 +1,11 @@
 import re
 
+intre = "-?\\d+"
+floatre = "-?\\d+(\\.\\d+)?"
+
 def retype(val):
-	if re.match("^-?\\d+$", val): return int(val)
-	elif re.match("^-?\\d+(.\\d+)?$", val): return float(val)
+	if re.match("^%s$" % (intre), val): return int(val)
+	elif re.match("^%s$" % (floatre), val): return float(val)
 	return val
 
 def mkdict(args):
@@ -15,11 +18,20 @@ def mkdict(args):
 		elif len(args[arg]) == 1: args[arg] = args[arg][0]
 	return args
 
-noncss = ["width", "height", "x", "y", "cx", "cy", "r", "rx", "ry", "x1", "x2", "y1", "y2"];
+def apply_op(n, op, delta):
+	if op == "+": return n + delta
+	elif op == "-": return n - delta
+	elif op == "*": return n * delta
+	elif op == "/": return n / delta
+	else: raise RuntimeError("Bad arithmetic operation: %s" % (op))
+
+noncss = ["width", "height", "x", "y", "cx", "cy", "fx", "fy", "r", "rx", "ry", "x1", "x2", "y1", "y2"];
 
 def updstyle(elem, k, v):
-	style = [ re.split(":\\s*", item) for item in re.split(";\\s*", elem.get("style")) ]
-	style = { item[0]: item[1] for item in style }
+	if elem.get("style"):
+	    style = [ re.split(":\\s*", item) for item in re.split(";\\s*", elem.get("style")) ]
+	    style = { item[0]: item[1] for item in style }
+	else: style = {}
 	style[k] = v
 	style = ";".join([ "%s:%s" % (k, v) for (k, v) in style.items() ])
 	elem.set("style", style)
@@ -46,8 +58,8 @@ class Viewbox(Transition):
 		getlayers(tree)["content"].set("viewBox", " ".join([ str(x) for x in box ]))
 	def encode(self, tree):
 		if len(self.args) == 4: box = self.args
-		elif len(self.args) == 1:
-			box = rect2vb(tree.cssselect(self.args[0])[0])
+		elif len(self.args) == 1: box = rect2vb(tree.cssselect(self.args[0])[0])
+		else: box = None
 		return {"type": "view", "box": box, **self.params}
 
 class Element(Transition):
@@ -55,10 +67,20 @@ class Element(Transition):
 		self.elem = elem
 		self.attrs = attrs
 		self.params = params
+	def calcvalue(self, tree, elem, k, v):
+		if type(v) is not str: return v
+		match = re.match("^(.)=(%s)$" % (floatre), v)
+		if match: return apply_op(float(elem.get(k)), match.group(1), float(match.group(2)))
+		match = re.match("^=(.[^.]*)\.(.+)([-+*/]%s)?" % (floatre), v)
+		if match:
+			target = tree.cssselect(match.group(1))[0].get(match.group(2))
+			if match.group(3): target = apply_op(float(target), match.group(3)[0], float(match.group(3)[1:]))
+			return target
 	def apply(self, tree):
 		elems = tree.cssselect(self.elem)
 		for e in elems:
 			for (k, v) in self.attrs.items():
+				v = self.calcvalue(tree, e, k, v)
 				if k in noncss: e.set(k, str(v))
 				else: updstyle(e, k, str(v))
 	def encode(self, tree):
