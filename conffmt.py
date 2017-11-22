@@ -9,6 +9,8 @@ keywords = {
 	"note": "raw",
 	"init": "recurse",
 	"view": "space",
+	"show": "space",
+	"hide": "space",
 	"duration": "space",
 	"select": "comma",
 	":": "raw",
@@ -112,7 +114,7 @@ def getconf(infile):
 		for trans in slide:
 			if trans[0] is None or trans[0] is "": continue
 			elif trans[0] in [":", "note"]: continue
-			elif trans[0] in ["view"] or trans[0][0] in ["#", "."]:
+			elif trans[0] in ["view", "show", "hide"] or trans[0][0] in ["#", "."]:
 				cur.append(transition.mktrans(trans, defaults))
 			elif trans[0] in ["duration"]: defaults[trans[0]] = int(trans[1][0])
 			else: raise RuntimeError("Unknown slide command \"%s\"" % (trans[0]))

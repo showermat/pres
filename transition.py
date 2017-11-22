@@ -1,5 +1,7 @@
 import re
 
+import util
+
 intre = "-?\\d+"
 floatre = "-?\\d+(\\.\\d+)?"
 
@@ -28,9 +30,7 @@ def apply_op(n, op, delta):
 noncss = ["width", "height", "x", "y", "cx", "cy", "fx", "fy", "r", "rx", "ry", "x1", "x2", "y1", "y2"];
 
 def updstyle(elem, k, v):
-	if elem.get("style"):
-	    style = [ re.split(":\\s*", item) for item in re.split(";\\s*", elem.get("style")) ]
-	    style = { item[0]: item[1] for item in style }
+	if elem.get("style"): style = util.csssplit(elem.get("style"), False)
 	else: style = {}
 	style[k] = v
 	style = ";".join([ "%s:%s" % (k, v) for (k, v) in style.items() ])
@@ -76,6 +76,7 @@ class Element(Transition):
 			target = tree.cssselect(match.group(1))[0].get(match.group(2))
 			if match.group(3): target = apply_op(float(target), match.group(3)[0], float(match.group(3)[1:]))
 			return target
+		return v
 	def apply(self, tree):
 		elems = tree.cssselect(self.elem)
 		for e in elems:
@@ -86,8 +87,20 @@ class Element(Transition):
 	def encode(self, tree):
 		return {"type": "elem", "select": self.elem, "attr": self.attrs, **self.params}
 
+class Display(Transition):
+	def __init__(self, elem, show):
+		self.elem = elem[0] # TODO Support multiple elements per line
+		self.show = show
+	def apply(self, tree):
+		for target in tree.cssselect(self.elem):
+			updstyle(target, "display", "block" if self.show else "none")
+	def encode(self, tree):
+		return {"type": "show" if self.show else "hide", "elem": self.elem}
+
 def mktrans(desc, defaults):
 	params = {**defaults.copy(), **mkdict(desc[2])}
 	if desc[0] is None or len(desc[0]) == 0: raise RuntimeError("Cannot make null transition")
 	elif desc[0] == "view": return Viewbox([ retype(arg) for arg in desc[1] ], params)
+	elif desc[0] == "show": return Display(desc[1], True)
+	elif desc[0] == "hide": return Display(desc[1], False)
 	elif desc[0][0] in [".", "#"]: return Element(desc[0], mkdict(desc[1]), params)

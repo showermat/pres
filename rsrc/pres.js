@@ -8,7 +8,7 @@ function rgb2hex(rgb) {
 function copy(obj) {
 	return $.extend(true, {}, obj);
 }
-function apply_op(n, op, delta) {
+	/*function apply_op(n, op, delta) {
 	if (op == "+") return n + delta;
 	if (op == "-") return n - delta;
 	if (op == "*") return n * delta;
@@ -25,7 +25,7 @@ function xform_value(elem, k, v) {
 	}
 	// TODO Referencing other objects
 	return v;
-}
+}*/
 
 var svg;
 var backstops = [];
@@ -39,12 +39,24 @@ function genBackstop(trans) {
 		var elem = $(trans["select"]);
 		var reset = {};
 		$.each(trans["attr"], function(k, v) {
-			var attr = elem.attr(k) || elem.css(k);
-			if (attr.match("^rgb()")) attr = rgb2hex(attr);
-			if (!isNaN(attr)) attr = parseFloat(attr);
-			reset[k] = attr;
+			if (v.toString().match("^[-+*/]=")) {
+				var complements = {"+": "-", "-": "+", "*": "/", "/": "*"};
+				reset[k] = complements[v[0]] + v.substr(1);
+			}
+			else {
+				var attr = elem.attr(k) || elem.css(k);
+				if (attr.match("^rgb()")) attr = rgb2hex(attr);
+				if (!isNaN(attr)) attr = parseFloat(attr);
+				reset[k] = attr;
+			}
 		});
 		ret["attr"] = reset;
+		break;
+	case "hide":
+		ret["type"] = "show";
+		break;
+	case "show":
+		ret["type"] = "hide";
 		break;
 	}
 	return ret;
@@ -74,7 +86,7 @@ function apply(trans, skip) {
 			break;
 		case "elem":
 			if (skip) {
-				var elem = $(trans["select"]);
+				/*var elem = $(trans["select"]);
 				var attr = {};
 				var css = {};
 				$.each(trans["attr"], function(k, v) {
@@ -86,10 +98,17 @@ function apply(trans, skip) {
 				elem.css(css);
 				// Ick.  The body up to this point is required because dimensional attributes are not handled by CSS.  Otherwise we could just use the line below.
 				//$(trans["select"]).css(trans["attr"]);
-				resolve();
+				resolve();*/
+				$(trans["select"]).velocity(trans["attr"], { duration: 0, complete: resolve() });
 			}
 			else $(trans["select"]).velocity(trans["attr"], { duration: duration, easing: easing, complete: resolve() });
 			// TODO Referencing other objects
+			break;
+		case "hide":
+			$(trans["elem"]).css("display", "none");
+			break;
+		case "show":
+			$(trans["elem"]).css("display", "block");
 			break;
 		}
 	});
@@ -99,7 +118,10 @@ var slide = 0;
 function go(target, skip = false) {
 	if (target > stops.length) target = stops.length;
 	if (target < 0) target = 0;
-	if (target == slide) return;
+	if (target == slide) {
+		window.location.hash = slide + 1;
+		return;
+	}
 	if (target > slide) {
 		var newBackstops = [];
 		var makeBackstops = false;
@@ -130,13 +152,19 @@ function keydown(e) {
 	case 37:
 		go(slide - 1, e.shiftKey);
 		break;
-	case 72:
-		go(0, true);
+	case 71:
+		if (e.shiftKey) go(stops.length, true);
+		else go(0, true);
 		break;
 	}
 }
 $(document).ready(function() {
 	svg = $("svg#content");
 	for (var i = 0; i < init.length; i++) apply(init[i], true);
+	$(window).on("hashchange", function(e) {
+		var start = parseInt(window.location.hash.substr(1));
+		if (start > 0) go(start - 1, true);
+	});
+	$(window).trigger("hashchange");
 	$(document).keydown(keydown);
 });
